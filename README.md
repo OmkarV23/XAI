@@ -27,4 +27,5 @@ cd src && mkdir build
 cd build
 cmake ..
 make
+./test <space seperated camera ids>
 ```
