@@ -19,3 +19,12 @@ $ cd mongo-cxx-driver-r3.7.2/build
 $ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
 % cmake --build .
 % cmake --build . --target install
+```
+
+## build
+``` 
+cd src && mkdir build
+cd build
+cmake ..
+make
+```
