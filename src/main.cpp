@@ -7,29 +7,52 @@
 #include <numeric>
 #include <string>
 #include <vector>
+#include <variant>
 #include <cstdlib>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
+// #include <curl.h>
+#include <kafka/KafkaProducer.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/dnn/dnn.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include </workspace/onnxruntime-linux-x64-gpu-1.15.0/include/onnxruntime_cxx_api.h>
+#include <onnxruntime/onnxruntime_cxx_api.h>
 
-#include "db.hpp"
+// #include "db.hpp"
 #include "preprocess.hpp"
+
+using namespace kafka;
+using namespace kafka::clients::producer;
+
+const std::string brokers = "localhost:9092";
+
+// Prepare the configuration
+const Properties props({{"bootstrap.servers", brokers}});
 
 std::mutex printMutex;
 
-MongoDBHelper helper;
+// MongoDBHelper helper;
+
+// CURL* curl;
+// CURLcode res;
+
+// curl_global_init(CURL_GLOBAL_DEFAULT);
+// curl = curl_easy_init();
 
 template <typename T>
 T vectorProduct(const std::vector<T>& v)
 {
     return accumulate(v.begin(), v.end(), 1, std::multiplies<T>());
+}
+
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response)
+{
+    size_t totalSize = size * nmemb;
+    response->append(static_cast<char*>(contents), totalSize);
+    return totalSize;
 }
 
 Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
@@ -54,9 +77,12 @@ std::vector<float> softmax(std::vector<float> inputTensorValues){
 
 void processCamera(int cameraIndex)
 {
-    std::string modelFilepath{"/workspace/omkar_projects/XAI/mobilenetv2-12-int8.onnx"};
+    std::string modelFilepath{"../../mobilenetv2-12-int8.onnx"};
     std::string inputName;
     std::string outputName;
+
+    const Topic topic = std::to_string(cameraIndex);
+    // const Topic topic = cameraIndex;
 
     Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "test"};
     Ort::SessionOptions sessionOptions;
@@ -79,9 +105,19 @@ void processCamera(int cameraIndex)
         return;
     }
 
+    KafkaProducer producer(props);
+
+    int frame_count = 0;
+    double fps;
+    std::chrono::steady_clock::time_point begin, stop;
+    begin = std::chrono::steady_clock::now();
+
+
     while (true) {
         cv::Mat frame;
         cap >> frame;
+        frame_count++;
+
         if (frame.empty())
             break;
 
@@ -118,26 +154,45 @@ void processCamera(int cameraIndex)
 
         outputTensorValues = softmax(outputTensorValues);
 
+
+        if(frame_count==100){
+            stop = std::chrono::steady_clock::now();
+            std::chrono::duration<double> elapsedSeconds = (stop - begin);
+            std::cout << "Camera " << cameraIndex << " fps : " << frame_count / elapsedSeconds.count() << std::endl;
+            frame_count = 0;
+            begin = std::chrono::steady_clock::now();
+            } 
+
         //get the max value from the output tensor
         float max_value = *std::max_element(outputTensorValues.begin(), outputTensorValues.end());
         //get the index of the max element
         auto max_index = std::max_element(outputTensorValues.begin(), outputTensorValues.end()) - outputTensorValues.begin();
-        std::cout << "Camera " << cameraIndex << ": " << max_index << " " << max_value << std::endl;
+        // std::cout << "Camera " << cameraIndex << ": " << max_index << " " << max_value << std::endl;
 
-        std::string camera_index = std::to_string(cameraIndex);
-        auto data = make_document(kvp("camera", cameraIndex), kvp("max_index", max_index), kvp("max_value", max_value));
-        helper.insertDocument("onnx_output", camera_index, data.view());
+        std::string message;
+        message = std::to_string(max_index) + "," + std::to_string(max_value);
 
-        // std::cout << "Camera " << cameraIndex << ": ";
-        // for (int i = 0; i < outputTensorSize; i++) {
-        //     std::cout << outputTensorValues.at(i) << " ";
-        // }
-        // std::cout << std::endl;
+        ProducerRecord record(topic, Key(topic.c_str(), topic.size()) , Value(message.c_str(), message.size()));
+
+        auto deliveryCb = [](const RecordMetadata& metadata, const Error& error) {
+            if (!error) {
+                std::cout << "Message delivered: " << metadata.toString() << std::endl;
+            } else {
+                std::cerr << "Message failed to be delivered: " << error.message() << std::endl;
+            }
+        };
+
+        producer.send(record, deliveryCb);
+
+        // std::string camera_index = std::to_string(cameraIndex);
+        // auto data = make_document(kvp("camera", cameraIndex), kvp("max_index", max_index), kvp("max_value", max_value));
+        // helper.insertDocument("onnx_output", camera_index, data.view());
 
         char c = (char)cv::waitKey(1);
         if (c == 'q')
             break;
     }
+    producer.close();
     cap.release();
 }
 
@@ -164,6 +219,24 @@ int main(int argc, char* argv[])
             pids.push_back(pid);
         }
     }
+
+
+    // std::vector<std::string> rtsp;
+    // for (int i = 1; i < argc; ++i) {
+    //     std::string rtsp_url = argv[i];
+    //     rtsp.push_back(rtsp_url);
+    // }
+
+    // std::vector<pid_t> pids;
+    // for (int i = 0; i < rtsp.size(); ++i) {
+    //     pid_t pid = fork();
+    //     if (pid == 0) {
+    //         processCamera(rtsp[i]);
+    //         return 0;
+    //     } else {
+    //         pids.push_back(pid);
+    //     }
+    // }
 
     for (pid_t pid : pids) {
         waitpid(pid, NULL, 0);

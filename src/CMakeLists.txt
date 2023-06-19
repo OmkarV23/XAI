@@ -3,18 +3,12 @@ project(onnx_test)
 
 # Find OpenCV package
 find_package(OpenCV 4 REQUIRED)
+
 find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
 
 # Set the include OpenCV directories
-include_directories(
-    ${OpenCV_INCLUDE_DIRS}
-)
-
-# Find ONNX Runtime
-set(ONNXRUNTIME_DIR "/workspace/onnxruntime-linux-x64-gpu-1.15.0")
-include_directories(${ONNXRUNTIME_DIR}/include)
-link_directories(${ONNXRUNTIME_DIR}/lib)
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 # Find libmongocxx and libbsoncxx
 set(MONGO_CXX_DIR "/usr/local")
@@ -33,8 +27,11 @@ add_executable(test ${SOURCES})
 # Link the libraries
 target_link_libraries(test
     PRIVATE
+    rdkafka
+    pthread
+    z
+    stdc++
     ${OpenCV_LIBS}
-    ${ONNXRUNTIME_DIR}/lib/libonnxruntime.so
     ${LIBMONGOCXX_LIBRARIES}
     ${LIBBSONCXX_LIBRARIES}
 )
@@ -42,7 +39,15 @@ target_link_libraries(test
 target_include_directories(test
     PRIVATE
     ${OpenCV_INCLUDE_DIRS}
-    ${ONNXRUNTIME_DIR}/include
     ${LIBMONGOCXX_INCLUDE_DIRS}
     ${LIBBSONCXX_INCLUDE_DIRS}
+)
+
+# Add the library directory to the linker's search path
+link_directories("/usr/local/lib")
+
+# Link libonnxruntime
+target_link_libraries(test
+    PRIVATE
+    onnxruntime
 )
