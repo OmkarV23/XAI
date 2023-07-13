@@ -1,0 +1,5 @@
+{"Camera_map": {
+        "1": {"camera_ip": "rtsp://75.237.131.193:8554/webCamStream"},
+        "2": {"camera_ip": "rtsp://75.237.131.193:8553/webCamStream"}
+        }
+}
