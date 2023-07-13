@@ -1,0 +1,23 @@
+services:
+  broker:
+    container_name: broker
+    depends_on:
+    - zookeeper
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://75.204.78.27:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_BROKER_ID: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_MIN_INSYNC_REPLICAS: '1'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    image: confluentinc/cp-kafka:latest
+    ports:
+    - 9092:9092
+  zookeeper:
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    image: confluentinc/cp-zookeeper:latest
+version: '3'
