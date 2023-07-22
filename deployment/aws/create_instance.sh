@@ -1,4 +1,22 @@
-#!/bin/sh
+#!/bin/bash
+
+ini_file="$1"
+
+# Check if the file exists
+if [[ ! -f "$ini_file" ]]; then
+  echo "INI file '$ini_file' not found."
+  exit 1
+fi
+VPC=$(awk -F "=" '/VPC/ {print $2}' $1)
+ZONE=$(awk -F "=" '/ZONE/ {print $2}' $1)
+AMI_ID=$(awk -F "=" '/AMI_ID/ {print $2}' $1)
+SECURITY_GROUP=$(awk -F "=" '/SECURITY_GROUP/ {print $2}' $1)
+INSTANCE_TYPE=$(awk -F "=" '/INSTANCE_TYPE/ {print $2}' $1)
+INSTANCE_COUNT=$(awk -F "=" '/INSTANCE_COUNT/ {print $2}' $1)
+INSTANCE_NAME=$(awk -F "=" '/INSTANCE_NAME/ {print $2}' $1)
+KEY_NAME=$(awk -F "=" '/KEY_NAME/ {print $2}' $1)
+
+
 
 progress_bar() {
   duration="$1"
@@ -32,43 +50,14 @@ progress_bar() {
   printf "\n"
 }
 
+echo "Creating $INSTANCE_NAME server"
+INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count $INSTANCE_COUNT --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --security-group-ids $SECURITY_GROUP --subnet-id $ZONE --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value='$INSTANCE_NAME'}]' --query 'Instances[0].InstanceId'  --output text)
 
-INSTANCENAME=k8s-worker-3
-
-echo "Creating $INSTANCENAME server"
-
-INSTANCETYPE=t2.xlarge
-
-AMI_ID=ami-0f8e81a3da6e2510a
-
-ZONE=subnet-096c6d9d04ad74402
-
-COUNTS=1
-
-INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count $COUNTS --instance-type $INSTANCETYPE --key-name _Genetec_Key_ --security-group-ids sg-0cdb65a718991ffe3 --subnet-id $ZONE --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value='$INSTANCENAME'}]' --query 'Instances[0].InstanceId'  --output text)
-
-echo "$INSTANCE_ID"
 progress_bar 75
-
-echo "$INSTANCENAME Server Created Successfully!"
-
+echo "$INSTANCE_NAME Server Created Successfully!"
 
 PUBLICIP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[].Instances[].PublicIpAddress' | cut -d "[" -f2 | cut -d "]" -f1 | tr -d '" ')
 
-#PCLINE="[$INSTANCENAME]
-$PUBLICIP ansible_user=ubuntu"
-
-PHLINE="[$INSTANCENAME]\n\n$PUBLICIP ansible_user=ubuntu"
-
-#PATH1="/var/lib/jenkins/workspace/$INSTANCENAME"
-#PATH2="/root/.jenkins/workspace/$INSTANCENAME"
-
-echo "$PHLINE" > /tmp/hosts
-
-#if [ "$(echo "$PWD")" = "$PATH1" ]; then
-#  echo "$PCLINE" > hosts
-#elif [ "$(echo "$PWD")" = "$PATH2" ]; then
-#  echo "$PCLINE" > hosts
-#else
-#fi
-
+echo "[$INSTANCE_NAME]" > /tmp/hosts
+echo " " >> /tmp/hosts
+echo "$PUBLICIP ansible_user=ubuntu" >> /tmp/hosts
