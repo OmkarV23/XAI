@@ -10,3 +10,6 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # Install Flannel plugin
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+# Get join token
+kubeadm token create --print-join-command

@@ -33,11 +33,11 @@ progress_bar() {
 }
 
 
-INSTANCENAME=k8s-worker-2
+INSTANCENAME=k8s-worker-3
 
 echo "Creating $INSTANCENAME server"
 
-INSTANCETYPE=t2.micro
+INSTANCETYPE=t2.xlarge
 
 AMI_ID=ami-0f8e81a3da6e2510a
 
@@ -55,19 +55,20 @@ echo "$INSTANCENAME Server Created Successfully!"
 
 PUBLICIP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[].Instances[].PublicIpAddress' | cut -d "[" -f2 | cut -d "]" -f1 | tr -d '" ')
 
-PCLINE="[$INSTANCENAME]
+#PCLINE="[$INSTANCENAME]
 $PUBLICIP ansible_user=ubuntu"
 
 PHLINE="[$INSTANCENAME]\n\n$PUBLICIP ansible_user=ubuntu"
 
-PATH1="/var/lib/jenkins/workspace/$INSTANCENAME"
-PATH2="/root/.jenkins/workspace/$INSTANCENAME"
+#PATH1="/var/lib/jenkins/workspace/$INSTANCENAME"
+#PATH2="/root/.jenkins/workspace/$INSTANCENAME"
 
-if [ "$(echo "$PWD")" = "$PATH1" ]; then
-  echo "$PCLINE" > hosts
-elif [ "$(echo "$PWD")" = "$PATH2" ]; then
-  echo "$PCLINE" > hosts
-else
-  echo "$PHLINE" > hosts
-fi
+echo "$PHLINE" > /tmp/hosts
+
+#if [ "$(echo "$PWD")" = "$PATH1" ]; then
+#  echo "$PCLINE" > hosts
+#elif [ "$(echo "$PWD")" = "$PATH2" ]; then
+#  echo "$PCLINE" > hosts
+#else
+#fi
 

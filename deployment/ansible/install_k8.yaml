@@ -1,9 +1,12 @@
 ---
-- hosts: k8s-worker-2
+- hosts: k8s-worker-3
   become: true
   tasks:
   - name: Disable Swap
-    shell: swapoff -a 
+    shell: swapoff -a
+
+  - name: Create Mount Directories
+    shell: mkdir -p /mnt/kubernetes/kafka/data/kafka_log/1 /mnt/kubernetes/kafka/data/kafka_log/2 /mnt/kubernetes/kafka/data/kafka_log/3 /mnt/kubernetes/kafka/data/zookeeper/1 /mnt/kubernetes/kafka/data/zookeeper/2 /mnt/kubernetes/kafka/data/zookeeper/3 /mnt/kubernetes/kafka/data/broker/1 /mnt/kubernetes/kafka/data/broker/2 /mnt/kubernetes/kafka/data/broker/3
 
   - name: Disable swap in /etc/fstab
     shell: sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
@@ -39,7 +42,7 @@
      
   - name: Install containerd run time dependencies
     apt:
-      name: [ 'ca-certificates', 'curl', 'gnupg', 'lsb-release' ]
+      name: [ 'ca-certificates', 'curl', 'gnupg', 'lsb-release', 'helm']
       state: present
 
   - name: Create directory
