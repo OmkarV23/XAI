@@ -1,0 +1,33 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: "mongo-db-external"
+  labels:
+    app: "mongo-db"
+spec:
+  ports:
+    - name: "mongodb"
+      port: 27017
+      targetPort: 27017
+      nodePort: 30332
+  type: "NodePort"
+  selector:
+    app: "mongo-db"
+
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: "mongo-db-headless"
+  labels:
+    app: "mongo-db"
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: "mongodb"
+      port: 27017
+      targetPort: 27017
+  selector:
+    app: "mongo-db"
