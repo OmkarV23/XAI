@@ -1,5 +1,5 @@
 ---
-- hosts: k8s-worker-3
+- hosts: "{{ host }}"
   become: true
   tasks:
   - name: Disable Swap
@@ -42,7 +42,7 @@
      
   - name: Install containerd run time dependencies
     apt:
-      name: [ 'ca-certificates', 'curl', 'gnupg', 'lsb-release', 'helm']
+      name: [ 'ca-certificates', 'curl', 'gnupg', 'lsb-release']
       state: present
 
   - name: Create directory

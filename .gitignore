@@ -1,4 +1,4 @@
 
 .idea/*
 *.pem
-deployment/ansible/hosts
+deployment/aws/hosts

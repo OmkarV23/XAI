@@ -51,7 +51,7 @@ progress_bar() {
 }
 
 echo "Creating $INSTANCE_NAME server"
-INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count $INSTANCE_COUNT --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --security-group-ids $SECURITY_GROUP --subnet-id $ZONE --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value='$INSTANCE_NAME'}]' --query 'Instances[0].InstanceId'  --output text)
+INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count $INSTANCE_COUNT --block-device-mappings '[{"DeviceName": "/dev/sda1","Ebs": {"VolumeSize": 30,"VolumeType": "gp2"}}]' --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --security-group-ids $SECURITY_GROUP --subnet-id $ZONE --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value='$INSTANCE_NAME'}]' --query 'Instances[0].InstanceId'  --output text)
 
 progress_bar 75
 echo "$INSTANCE_NAME Server Created Successfully!"
