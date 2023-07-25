@@ -1,4 +1,4 @@
-FROM confluentinc/cp-server-connect-base:7.3.3
+FROM confluentinc/cp-kafka-connect:latest
 
 RUN confluent-hub install --no-prompt --verbose mongodb/kafka-connect-mongodb:latest
 
@@ -8,8 +8,8 @@ ENV CONNECT_BOOTSTRAP_SERVERS="kafka-0.kafka-headless.default.svc.cluster.local:
     CONNECT_CONFIG_STORAGE_TOPIC="connect-configs" \
     CONNECT_OFFSET_STORAGE_TOPIC="connect-offsets" \
     CONNECT_STATUS_STORAGE_TOPIC="connect-status" \
-#    CONNECT_KEY_CONVERTOR_SCHEMAS_ENABLE="false" \
-#    CONNECT_VALUE_CONVERTOR_SCHEMAS_ENABLE="false" \
+    CONNECT_INTERNAL_KEY_CONVERTER="org.apache.kafka.connect.json.JsonConverter" \
+    CONNECT_INTERNAL_VALUE_CONVERTER="org.apache.kafka.connect.json.JsonConverter" \
     CONNECT_KEY_CONVERTER="io.confluent.connect.avro.AvroConverter" \
     CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL="http://schema-registry:8081" \
     CONNECT_VALUE_CONVERTER="io.confluent.connect.avro.AvroConverter" \
@@ -23,7 +23,7 @@ ENV CONNECT_BOOTSTRAP_SERVERS="kafka-0.kafka-headless.default.svc.cluster.local:
     CONNECT_METADATA_MAX_AGE_MS="180000" \
     CONNECT_CONNECTIONS_MAX_IDLE_MS="180000" \
     CONNECT_OFFSET_FLUSH_INTERVAL_MS="10000" \
-    CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components"
+    CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars"
 
 EXPOSE 8083
 
