@@ -1,3 +1,6 @@
 #!/bin/bash
 
-kubectl create secret docker-registry dockercred --docker-server=https://index.docker.io/v1/ --docker-username="shikharg1997" --docker-password="Pesu@2015" --docker-email="sgupt330@asu.edu"
+kubectl apply -f kaniko-pod.yaml
+sleep 240
+kubectl delete pod --field-selector=status.phase==Succeeded
+kubectl apply -f kafka-mongodb-connector.yaml
