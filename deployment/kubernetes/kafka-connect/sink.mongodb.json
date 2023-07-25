@@ -3,7 +3,7 @@
   "config": {
     "topics.regex": ".*",
     "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
-    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": false,
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": false,
@@ -12,7 +12,7 @@
     "errors.tolerance": "all",
     "errors.log.enable": true,
     "errors.log.include.messages": true,
-    "connection.uri": "mongodb://admin:admin123@localhost:30332",
+    "connection.uri": "mongodb://admin:admin123@mongo-db-headless:27017",
     "database": "default"
   }
 }

@@ -27,7 +27,7 @@ deleteTopicEnable: true
 offsetsTopicReplicationFactor: 3
 numPartitions: 3
 defaultReplicationFactor: 3
-minInsyncReplicas: 2
+minInsyncReplicas: 1
 uncleanLeaderElectionEnable: false
 logFlushIntervalMessages: 10000
 logFlushIntervalMs: 1000
