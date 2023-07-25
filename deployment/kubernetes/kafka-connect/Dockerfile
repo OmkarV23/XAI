@@ -5,9 +5,11 @@ RUN confluent-hub install --no-prompt --verbose mongodb/kafka-connect-mongodb:la
 ENV CONNECT_BOOTSTRAP_SERVERS="kafka-0.kafka-headless.default.svc.cluster.local:9092,kafka-1.kafka-headless.default.svc.cluster.local:9092,kafka-2.kafka-headless.default.svc.cluster.local:9092" \
     CONNECT_REST_PORT="8083" \
     CONNECT_GROUP_ID="kafka-connect" \
-    CONNECT_CONFIG_STORAGE_TOPIC="_connect-configs" \
-    CONNECT_OFFSET_STORAGE_TOPIC="_connect-offsets" \
-    CONNECT_STATUS_STORAGE_TOPIC="_connect-status" \
+    CONNECT_CONFIG_STORAGE_TOPIC="connect-configs" \
+    CONNECT_OFFSET_STORAGE_TOPIC="connect-offsets" \
+    CONNECT_STATUS_STORAGE_TOPIC="connect-status" \
+    CONNECT_KEY_CONVERTOR_SCHEMAS_ENABLE="false" \
+    CONNECT_VALUE_CONVERTOR_SCHEMAS_ENABLE="false" \
     CONNECT_KEY_CONVERTER="org.apache.kafka.connect.json.JsonConverter" \
 #    CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL="http://schema-registry:8081" \
     CONNECT_VALUE_CONVERTER="org.apache.kafka.connect.json.JsonConverter" \
