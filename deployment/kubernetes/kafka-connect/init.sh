@@ -14,5 +14,5 @@ while : ; do
 done
 
 echo -e "\n--\n+> Creating Data Generator source"
-
+cat sink.mongodb.json
 curl -X POST http://localhost:8083/connectors/ -H "Content-Type:application/json" -H "Accept:application/json" -d @sink.mongodb.json
