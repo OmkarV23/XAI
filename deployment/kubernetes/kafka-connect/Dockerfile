@@ -9,6 +9,7 @@ ENV CONNECT_BOOTSTRAP_SERVERS="kafka-0.kafka-headless.default.svc.cluster.local:
     CONNECT_OFFSET_STORAGE_TOPIC="_connect-offsets" \
     CONNECT_STATUS_STORAGE_TOPIC="_connect-status" \
     CONNECT_KEY_CONVERTER="io.confluent.connect.avro.AvroConverter" \
+    CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL="http://schema-registry:8081" \
     CONNECT_VALUE_CONVERTER="io.confluent.connect.avro.AvroConverter" \
     CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL="http://schema-registry:8081" \
     CONNECT_REST_ADVERTISED_HOST_NAME="kafka-connect" \
