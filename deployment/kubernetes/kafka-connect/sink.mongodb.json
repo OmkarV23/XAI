@@ -3,9 +3,10 @@
   "config": {
     "topics.regex": ".*",
     "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
-    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": false,
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": false,
     "schema.ignore": "true",
     "document.id.strategy": "com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInValueStrategy",
     "document.id.strategy.overwrite.existing": "true",
