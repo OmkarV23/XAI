@@ -9,9 +9,7 @@
     kubectl create namespace kubernetes-dashboard
 
 ### Create dashboard secret
-    kubectl delete secret kubernetes-dashboard-certs -n kubernetes-dashboard
     kubectl create secret generic kubernetes-dashboard-certs --from-file=$HOME/certs -n kubernetes-dashboard
-    kubectl describe secret -n kubernetes-dashboard
     kubectl describe secret kubernetes-dashboard-certs -n kubernetes-dashboard
 
 ### Apply configs
