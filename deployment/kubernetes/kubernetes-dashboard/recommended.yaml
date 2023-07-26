@@ -104,7 +104,7 @@ rules:
   # Allow Dashboard to get, update and delete Dashboard exclusive secrets.
   - apiGroups: [""]
     resources: ["secrets"]
-    resourceNames: ["kubernetes-dashboard-key-holder", "kubernetes-dashboard-certs", "kubernetes-dashboard-csrf", "kubernetes-dashboard-basic-auth"]
+    resourceNames: ["kubernetes-dashboard-key-holder", "kubernetes-dashboard-certs", "kubernetes-dashboard-csrf"]
     verbs: ["get", "update", "delete"]
     # Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.
   - apiGroups: [""]
@@ -193,7 +193,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: kubernetes-dashboard
-          image: kubernetesui/dashboard:v2.5.0
+          image: kubernetesui/dashboard:v2.7.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8443
@@ -203,7 +203,6 @@ spec:
             - --tls-key-file=/tls.key
             - --auto-generate-certificates
             - --namespace=kubernetes-dashboard
-            # - --authentication-mode=basic
             # Uncomment the following line to manually specify Kubernetes API server Host
             # If not specified, Dashboard will attempt to auto discover the API server and connect
             # to it. Uncomment only if the default does not work.
@@ -281,7 +280,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: dashboard-metrics-scraper
-          image: kubernetesui/metrics-scraper:v1.0.7
+          image: kubernetesui/metrics-scraper:v1.0.8
           ports:
             - containerPort: 8000
               protocol: TCP
@@ -293,8 +292,8 @@ spec:
             initialDelaySeconds: 30
             timeoutSeconds: 30
           volumeMounts:
-          - mountPath: /tmp
-            name: tmp-volume
+            - mountPath: /tmp
+              name: tmp-volume
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

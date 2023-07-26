@@ -5,7 +5,7 @@
 
 ### Download dashboard config file
 
-    wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
+    wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
     kubectl create namespace kubernetes-dashboard
 
 ### Create dashboard secret
