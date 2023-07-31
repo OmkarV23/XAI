@@ -1,0 +1,14 @@
+apiVersion: v2
+name: zookeeper
+version: 0.2.0
+description: A Helm chart for Confluent Zookeeper on Kubernetes
+type: application
+keywords:
+  - zookeeper
+  - confluent
+sources:
+  - https://docs.confluent.io/platform/current/zookeeper/deployment.html
+  - https://zookeeper.apache.org/doc/current/index.html
+  - https://hub.docker.com/r/confluentinc/cp-zookeeper
+icon: https://svn.apache.org/repos/asf/comdev/project-logos/originals/zookeeper.svg
+appVersion: 7.3.0
