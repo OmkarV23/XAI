@@ -91,7 +91,7 @@ Alternatively, a YAML file that specifies the values for the parameters can be p
 helm upgrade --install zkp -f my-values.yaml rhcharts/zookeeper
 ```
 
-A default [values.yaml](../zookeeper-config-values.yaml) is available and should be checked for more advanced usage.
+A default [values.yaml](../../../zookeeper-config-values.yaml) is available and should be checked for more advanced usage.
 
 ### Image
 

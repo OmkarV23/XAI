@@ -3,6 +3,7 @@ kind: PersistentVolume
 metadata:
   name: zookeeper-data-1
 spec:
+  storageClassName: zookeeper-data
   capacity:
     storage: 1Gi
   volumeMode: Filesystem
@@ -45,6 +46,7 @@ kind: PersistentVolume
 metadata:
   name: zookeeper-data-2
 spec:
+  storageClassName: zookeeper-data
   capacity:
     storage: 1Gi
   volumeMode: Filesystem
@@ -87,6 +89,7 @@ kind: PersistentVolume
 metadata:
   name: zookeeper-data-3
 spec:
+  storageClassName: zookeeper-data
   capacity:
     storage: 1Gi
   volumeMode: Filesystem
@@ -123,13 +126,15 @@ spec:
               operator: In
               values:
                 - us-west-1a
+
 ---
+
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: kafka-broker-data-1
+  name: zookeeper-log-data-1
 spec:
-  storageClassName: kafka-broker-data
+  storageClassName: zookeeper-log-data
   capacity:
     storage: 1Gi
   volumeMode: Filesystem
@@ -137,93 +142,7 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   local:
-    path: /mnt/kubernetes/kafka/data/broker/1
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/os
-              operator: In
-              values:
-                - linux
-            - key: type
-              operator: In
-              values:
-                - cloud
-            - key: provider
-              operator: In
-              values:
-                - aws
-            - key: service
-              operator: In
-              values:
-                - ec2
-            - key: region
-              operator: In
-              values:
-                - us-west-1
-            - key: availability_zone
-              operator: In
-              values:
-                - us-west-1a
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: kafka-broker-data-2
-spec:
-  storageClassName: kafka-broker-data
-  capacity:
-    storage: 1Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  local:
-    path: /mnt/kubernetes/kafka/data/broker/2
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/os
-              operator: In
-              values:
-                - linux
-            - key: type
-              operator: In
-              values:
-                - cloud
-            - key: provider
-              operator: In
-              values:
-                - aws
-            - key: service
-              operator: In
-              values:
-                - ec2
-            - key: region
-              operator: In
-              values:
-                - us-west-1
-            - key: availability_zone
-              operator: In
-              values:
-                - us-west-1a
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: kafka-broker-data-3
-spec:
-  storageClassName: kafka-broker-data
-  capacity:
-    storage: 1Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  local:
-    path: /mnt/kubernetes/kafka/data/broker/3
+    path: /mnt/kubernetes/kafka/data/zookeeper_log/1
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -257,8 +176,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: kafka-log-data-1
+  name: zookeeper-log-data-2
 spec:
+  storageClassName: zookeeper-log-data
   capacity:
     storage: 1Gi
   volumeMode: Filesystem
@@ -266,7 +186,7 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   local:
-    path: /mnt/kubernetes/kafka/data/kafka_log/3
+    path: /mnt/kubernetes/kafka/data/zookeeper_log/2
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -300,8 +220,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: kafka-log-data-2
+  name: zookeeper-log-data-3
 spec:
+  storageClassName: zookeeper-log-data
   capacity:
     storage: 1Gi
   volumeMode: Filesystem
@@ -309,50 +230,7 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   local:
-    path: /mnt/kubernetes/kafka/data/kafka_log/3
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/os
-              operator: In
-              values:
-                - linux
-            - key: type
-              operator: In
-              values:
-                - cloud
-            - key: provider
-              operator: In
-              values:
-                - aws
-            - key: service
-              operator: In
-              values:
-                - ec2
-            - key: region
-              operator: In
-              values:
-                - us-west-1
-            - key: availability_zone
-              operator: In
-              values:
-                - us-west-1a
----
-
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: kafka-log-data-3
-spec:
-  capacity:
-    storage: 1Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  local:
-    path: /mnt/kubernetes/kafka/data/kafka_log/3
+    path: /mnt/kubernetes/kafka/data/zookeeper_log/3
   nodeAffinity:
     required:
       nodeSelectorTerms:

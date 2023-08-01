@@ -71,9 +71,11 @@ acls:
 ## ref: https://docs.confluent.io/platform/current/zookeeper/deployment.html
 zookeeper:
   ## If true, install the zookeeper chart
-  enabled: true
+  enabled: false
+  kerberos:
+    enabled: false
   ## If the Zookeeper Chart is disabled a URL and port are required to connect
-  url: ""
+  url: "kafka-zookeeper-headless:2181"
 
 ## Data Persistence
 ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/

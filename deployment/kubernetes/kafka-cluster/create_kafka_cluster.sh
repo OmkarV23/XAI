@@ -16,5 +16,6 @@ else
     helm repo add rhcharts https://ricardo-aires.github.io/helm-charts/
 fi
 
-kubectl apply -f kafka-storage.yml
-helm install kafka -f kafka-config-values.yaml rhcharts/kafka
+kubectl apply -f kafka-pv.yml
+kubectl apply -f zookeeper-pv.yml
+helm install kafka -f kafka-config-values.yaml ./kafka

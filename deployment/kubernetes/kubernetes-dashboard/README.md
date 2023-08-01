@@ -1,7 +1,7 @@
 # Access Kubernetes Dashboard
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/nginx.key -out /tmp/nginx.crt -subj "/CN=nginxsvc/O=nginxsvc"
-    cp /tmp/nginx.crt OME/certs/tls.crt
-    cp /tmp/nginx.key OME/certs/tls.key
+    cp /tmp/nginx.crt $HOME/certs/tls.crt
+    cp /tmp/nginx.key $HOME/certs/tls.key
 
 ### Download dashboard config file
 
@@ -16,6 +16,7 @@
     kubectl apply -f recommended.yaml
     kubectl apply -f service-acc.yaml
     kubectl apply -f cluster-role-binding.yaml
+    kubectl apply -f admin-user-secret.yaml
 
 ### Check service status
     kubectl get pod -n kubernetes-dashboard

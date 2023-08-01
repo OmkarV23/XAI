@@ -6,7 +6,7 @@
     shell: swapoff -a
 
   - name: Create Mount Directories
-    shell: mkdir -p /data/db /mnt/kubernetes/kafka/data/kafka_log/1 /mnt/kubernetes/kafka/data/kafka_log/2 /mnt/kubernetes/kafka/data/kafka_log/3 /mnt/kubernetes/kafka/data/zookeeper/1 /mnt/kubernetes/kafka/data/zookeeper/2 /mnt/kubernetes/kafka/data/zookeeper/3 /mnt/kubernetes/kafka/data/broker/1 /mnt/kubernetes/kafka/data/broker/2 /mnt/kubernetes/kafka/data/broker/3
+    shell: mkdir -p /mnt/kubernetes/kafka/data/zookeeper_log/1 /mnt/kubernetes/kafka/data/zookeeper_log/2 /mnt/kubernetes/kafka/data/zookeeper_log/3 /mnt/kubernetes/kafka/data/zookeeper/1 /mnt/kubernetes/kafka/data/zookeeper/2 /mnt/kubernetes/kafka/data/zookeeper/3 /mnt/kubernetes/kafka/data/broker/1 /mnt/kubernetes/kafka/data/broker/2 /mnt/kubernetes/kafka/data/broker/3
 
   - name: Disable swap in /etc/fstab
     shell: sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
