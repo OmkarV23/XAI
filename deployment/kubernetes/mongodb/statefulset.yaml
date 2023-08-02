@@ -5,7 +5,7 @@ metadata:
   name: "mongo-db"
 spec:
   serviceName: "mongo-db"
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: "mongo-db"
