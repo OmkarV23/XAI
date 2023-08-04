@@ -35,7 +35,7 @@ logRetentionBytes: 1073741824
 logRetentionCheckIntervalMs: 300000
 logRetentionHours: 168
 logSegmentBytes: 1073741824
-messageMaxBytes: 1048588
+messageMaxBytes: 104857600
 
 ## Kafka Docker Logging - log4j log levels
 ## ref: https://docs.confluent.io/platform/current/installation/docker/operations/logging.html#configure-docker-logging
