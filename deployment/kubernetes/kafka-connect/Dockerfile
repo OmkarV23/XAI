@@ -1,6 +1,7 @@
 FROM confluentinc/cp-kafka-connect:latest
 
 RUN confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:latest
+RUN confluent-hub install confluentinc/connect-transforms:latest
 
 RUN confluent-hub list
 
@@ -29,4 +30,4 @@ COPY worker.properties /etc/kafka-connect/worker.properties
 COPY mongodb-sink.properties /etc/kafka-connect/mongodb-sink.properties
 
 WORKDIR /etc/kafka-connect
-CMD ["connect-standalone", "/etc/kafka-connect/worker.properties", "/etc/kafka-connect/mongodb-sink.properties"]
+CMD ["connect-distributed", "/etc/kafka-connect/worker.properties", "/etc/kafka-connect/mongodb-sink.properties"]
