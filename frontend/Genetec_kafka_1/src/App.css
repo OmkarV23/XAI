@@ -1,0 +1,15 @@
+.app {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .image-container {
+    margin: 20px;
+    text-align: center;
+  }
+  
+  .highlighted-image {
+    border: 20px solid red;
+  }
+  
