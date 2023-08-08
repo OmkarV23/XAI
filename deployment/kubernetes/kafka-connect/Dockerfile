@@ -30,4 +30,4 @@ COPY worker.properties /etc/kafka-connect/worker.properties
 COPY mongodb-sink.properties /etc/kafka-connect/mongodb-sink.properties
 
 WORKDIR /etc/kafka-connect
-CMD ["connect-distributed", "/etc/kafka-connect/worker.properties", "/etc/kafka-connect/mongodb-sink.properties"]
+CMD ["connect-standalone", "/etc/kafka-connect/worker.properties", "/etc/kafka-connect/mongodb-sink.properties"]
