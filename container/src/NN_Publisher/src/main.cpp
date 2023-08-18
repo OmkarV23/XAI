@@ -19,7 +19,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <onnxruntime/onnxruntime_cxx_api.h>
-# include <nlohmann/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include "preprocess.hpp"
 
@@ -27,7 +27,11 @@ using namespace kafka;
 using namespace kafka::clients::producer;
 using json = nlohmann::json;
 
-const std::string brokers = "75.204.78.27:9092";
+const std::string brokers = "172.31.3.62:32400,172.31.3.62:32401";//,172.31.3.62:32402";
+
+//const std::string brokers = "75.204.32.218:9092";
+
+const kafka::Partition partition = 0;
 
 // Prepare the configuration
 const Properties props({{"bootstrap.servers", brokers}});
@@ -49,12 +53,11 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* res
 
 Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
 
-std::vector<int64_t> inputShape{1, 3, 224, 224};
-std::vector<int64_t> outputShape{1, 1000};
+std::vector<int64_t> inputShape{1, 3, 256, 256};
+std::vector<int64_t> outputShape{1, 13};
 
 size_t inputTensorSize = vectorProduct(inputShape);
 
-// implement a softmax function
 std::vector<float> softmax(std::vector<float> inputTensorValues){
     std::vector<float> outputTensorValues(inputTensorSize);
     float sum = 0.0;
@@ -67,13 +70,19 @@ std::vector<float> softmax(std::vector<float> inputTensorValues){
     return outputTensorValues;
 }
 
+std::vector<float> sigmoid(std::vector<float> inputTensorValues){
+    std::vector<float> outputTensorValues(inputTensorSize);
+    for (int i = 0; i < inputTensorValues.size(); i++){
+        outputTensorValues[i] = 1 / (1 + exp(-inputTensorValues[i]));
+    }
+    return outputTensorValues;
+}
+
 void processCamera(std::string cameraIndex, std::string rtspUrl)
 {
-    std::string modelFilepath{"../../model/mobilenetv2-12-int8.onnx"};
+    std::string modelFilepath{"/workspace/src/build/model/mobilenet_v2_xai_adam_dn_0.0001_clear_f17_f18_best_model.onnx"};
     std::string inputName;
     std::string outputName;
-
-    // const Topic topic = std::to_string(cameraIndex);
     const Topic topic = cameraIndex;
 
     Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "test"};
@@ -105,9 +114,10 @@ void processCamera(std::string cameraIndex, std::string rtspUrl)
     begin = std::chrono::steady_clock::now();
 
 
-    // std::vector<cv::Mat> frames;
     bool flag = false;
-    std::string message;
+    json message;
+    std::string encodedImage;
+    float total_fps;
 
     while (true) {
         cv::Mat frame;
@@ -117,106 +127,95 @@ void processCamera(std::string cameraIndex, std::string rtspUrl)
         if (frame.empty())
             break;
         
-        // frames.push_back(frame);
-        // cv::Mat preprocessedImage = preprocess(frame);
-        PreprocessedData result = preprocess(frame,flag);
-        cv::Mat preprocessedImage = result.preprocessedImage;
-        if (flag == true){
-            std::cout << "Encoding Image" << std::endl;
-            std::string encodedImage = result.encodedImage;
-            message = encodedImage;
-            flag = false;
-        }
-
-        // std::string encodedImage = result.encodedImage;
-
-        // if (cameraIndex == "1"){
-        // std::cout << "Camera Index" << cameraIndex << std::endl;
-	    // std::cout << "Encoded Image: " << encodedImage.substr(encodedImage.size()-10, encodedImage.size()) << std::endl;
-        // }
-        std::vector<float> inputTensorValues(inputTensorSize);
-
-        for (int64_t i = 0; i < inputShape.at(0); ++i)
-        {
-            std::copy(preprocessedImage.begin<float>(),
-                    preprocessedImage.end<float>(),
-                    inputTensorValues.begin() + i * inputTensorSize / inputShape.at(0));
-        }
-
-        size_t outputTensorSize = vectorProduct(outputShape);
-        std::vector<float> outputTensorValues(outputTensorSize);
-
-        std::vector<Ort::Value> inputTensors;
-        std::vector<Ort::Value> outputTensors;
-
-        inputTensors.push_back(Ort::Value::CreateTensor<float>(
-            memoryInfo, inputTensorValues.data(), inputTensorSize, inputShape.data(),
-            inputShape.size()));
-        outputTensors.push_back(Ort::Value::CreateTensor<float>(
-            memoryInfo, outputTensorValues.data(), outputTensorSize,
-            outputShape.data(), outputShape.size()));
-
-        session_.Run(Ort::RunOptions{nullptr}, inputNames.data(),
-                    inputTensors.data(), 1, outputNames.data(),
-                    outputTensors.data(), 1);
-
-        std::lock_guard<std::mutex> lock(printMutex);
-
-
-        outputTensorValues = softmax(outputTensorValues);
-
         stop = std::chrono::steady_clock::now();
-        //check if stop-begin== 20 milliseconds
         std::chrono::duration<double> elapsedSeconds = (stop - begin);
 
-        std::cout << "Elapsed Seconds: " << elapsedSeconds.count() << std::endl;
 
         if (std::abs(elapsedSeconds.count()-0.2) < 0.01 || std::abs(elapsedSeconds.count()-0.8) < 0.01){
-            std::cout <<"Making flag true" << std::endl;
             flag = true;
-        }
 
-        if (std::abs(elapsedSeconds.count() - 1.0) <= 0.1){
-            std::cout << "Sending Message" << std::endl;
-            // std::cout << "Camera " << cameraIndex << " fps : " << frame_count / elapsedSeconds.count() << std::endl;
-            // frame_count = 0;
-            begin = std::chrono::steady_clock::now();
-        }
-
-        // if(frame_count==100){
-        //     stop = std::chrono::steady_clock::now();
-        //     std::chrono::duration<double> elapsedSeconds = (stop - begin);
-        //     std::cout << "Camera " << cameraIndex << " fps : " << frame_count / elapsedSeconds.count() << std::endl;
-        //     frame_count = 0;
-        //     begin = std::chrono::steady_clock::now();
-        //     } 
-
-        //get the max value from the output tensor
-        float max_value = *std::max_element(outputTensorValues.begin(), outputTensorValues.end());
-        //get the index of the max element
-        auto max_index = std::max_element(outputTensorValues.begin(), outputTensorValues.end()) - outputTensorValues.begin();
-        // std::cout << "Camera " << cameraIndex << ": " << max_index << " " << max_value << std::endl;
-
-        if (message.size() == 0){
-            message = std::to_string(max_index) + "\t" + std::to_string(max_value);
-        }
-        else{
-            message = std::to_string(max_index) + "\t" + std::to_string(max_value) + "\t" + message;
-        }
-
-        ProducerRecord record(topic, Key(topic.c_str(), topic.size()) , Value(message.c_str(), message.size()));
-
-        auto deliveryCb = [](const RecordMetadata& metadata, const Error& error) {
-            if (!error) {
-                std::cout << "Message delivered: " << metadata.toString() << std::endl;
-            } else {
-                std::cerr << "Message failed to be delivered: " << error.message() << std::endl;
+            PreprocessedData result = preprocess(frame,flag);
+            cv::Mat preprocessedImage = result.preprocessedImage;
+            if (flag == true){
+                std::string encodedImage = result.encodedImage;
+                message["image"] = encodedImage;
+                encodedImage.clear();
+                flag = false;
             }
-        };
+            std::vector<float> inputTensorValues(inputTensorSize);
 
-        producer.send(record, deliveryCb);
-        message.clear();
+            for (int64_t i = 0; i < inputShape.at(0); ++i)
+            {
+                std::copy(preprocessedImage.begin<float>(),
+                        preprocessedImage.end<float>(),
+                        inputTensorValues.begin() + i * inputTensorSize / inputShape.at(0));
+            }
 
+            size_t outputTensorSize = vectorProduct(outputShape);
+            std::vector<float> outputTensorValues(outputTensorSize);
+
+            std::vector<Ort::Value> inputTensors;
+            std::vector<Ort::Value> outputTensors;
+
+            inputTensors.push_back(Ort::Value::CreateTensor<float>(
+                memoryInfo, inputTensorValues.data(), inputTensorSize, inputShape.data(),
+                inputShape.size()));
+            outputTensors.push_back(Ort::Value::CreateTensor<float>(
+                memoryInfo, outputTensorValues.data(), outputTensorSize,
+                outputShape.data(), outputShape.size()));
+
+            session_.Run(Ort::RunOptions{nullptr}, inputNames.data(),
+                        inputTensors.data(), 1, outputNames.data(),
+                        outputTensors.data(), 1);
+
+            std::lock_guard<std::mutex> lock(printMutex);
+
+            outputTensorValues = sigmoid(outputTensorValues);
+
+            if (elapsedSeconds.count() > 1.0){
+                begin = std::chrono::steady_clock::now();
+                total_fps = frame_count / elapsedSeconds.count();
+                std::cout << "Total FPS: " << total_fps << std::endl;
+                frame_count = 0;
+            }
+
+            if (message.contains("image")){
+                std::cout << "Sending Message" << std::endl;
+                float max_value = *std::max_element(outputTensorValues.begin(), outputTensorValues.end());
+                auto max_index = std::max_element(outputTensorValues.begin(), outputTensorValues.end()) - outputTensorValues.begin();
+
+                message["class"] = max_index;
+                message["confidence"] = max_value;
+                message["camera"] = cameraIndex;
+
+                std::cout << "Class: " << message["class"] << std::endl;
+                std::cout << "Confidence: " << message["confidence"] << std::endl;
+
+                std::string tmp_message = message.dump();
+
+                ProducerRecord record(topic, partition, Key(topic.c_str(), topic.size()) , Value(tmp_message.c_str(), tmp_message.size()));
+
+                auto deliveryCb = [](const RecordMetadata& metadata, const Error& error) {
+                    if (!error) {
+                        std::cout << "Message delivered: " << metadata.toString() << std::endl;
+                        } 
+                    else {
+                        std::cerr << "Message failed to be delivered: " << error.message() << std::endl;
+                    }
+                };
+                producer.send(record, deliveryCb);
+                message.clear();
+
+            }
+        }
+
+        if (elapsedSeconds.count() > 1.0){
+            begin = std::chrono::steady_clock::now();
+            total_fps = frame_count / elapsedSeconds.count();
+            std::cout << "Total FPS: " << total_fps << std::endl;
+            frame_count = 0;
+        }
+        
         char c = (char)cv::waitKey(1);
         if (c == 'q')
             break;
