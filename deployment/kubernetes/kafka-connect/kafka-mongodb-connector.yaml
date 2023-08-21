@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: kafka-connect
-        image: shikharg1997/kafka-mongo-connect:latest
+        image: <registry-name>/kafka-mongo-connect:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8083

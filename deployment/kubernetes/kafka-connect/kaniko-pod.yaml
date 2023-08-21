@@ -20,7 +20,7 @@ spec:
       args:
         - '--context=dir:///tmp/workspace/deployment/kubernetes/kafka-connect'
         - '--dockerfile=/tmp/workspace/deployment/kubernetes/kafka-connect/Dockerfile'
-        - '--destination=shikharg1997/kafka-mongo-connect:latest'
+        - '--destination=<registry-name>/kafka-mongo-connect:latest'
       volumeMounts:
         - name: kaniko-secret
           mountPath: /kaniko/.docker

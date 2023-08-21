@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Usage ./create_instance.sh config.ini <INSTANCE_NAME>
 ini_file="$1"
 
 # Check if the file exists
@@ -13,7 +14,7 @@ AMI_ID=$(awk -F "=" '/AMI_ID/ {print $2}' $1)
 SECURITY_GROUP=$(awk -F "=" '/SECURITY_GROUP/ {print $2}' $1)
 INSTANCE_TYPE=$(awk -F "=" '/INSTANCE_TYPE/ {print $2}' $1)
 INSTANCE_COUNT=$(awk -F "=" '/INSTANCE_COUNT/ {print $2}' $1)
-INSTANCE_NAME=$(awk -F "=" '/INSTANCE_NAME/ {print $2}' $1)
+INSTANCE_NAME=$2
 KEY_NAME=$(awk -F "=" '/KEY_NAME/ {print $2}' $1)
 
 
