@@ -47,7 +47,7 @@ To test if kafka is working or not use ./cluster_test.sh
 ## Configure KafkaConnect
 We use kaniko to build the dockerfile on the go, push it to docker hub and the kafka-connect k8 yaml file downloads it.
 
-_Configure the <registry-name> in kaniko-pod.yaml and kafka-mongodb-connector.yaml. Update the github repo token as well if using some other repository_
+_Configure the registry-name in kaniko-pod.yaml and kafka-mongodb-connector.yaml. Update the github repo token as well if using some other repository_
     
     cd kubernetes/kafka-connect
     ./kaniko-deploy.sh
