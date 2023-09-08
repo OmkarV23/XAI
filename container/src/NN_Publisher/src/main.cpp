@@ -54,7 +54,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* res
 Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
 
 std::vector<int64_t> inputShape{1, 3, 256, 256};
-std::vector<int64_t> outputShape{1, 13};
+std::vector<int64_t> outputShape{1, 11};
 
 size_t inputTensorSize = vectorProduct(inputShape);
 
