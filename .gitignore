@@ -4,3 +4,4 @@
 deployment/aws/hosts
 deployment/kubernetes/kafka/kafka/.DS_Store
 deployment/kubernetes/kafka-cluster/kafka/.DS_Store
+.DS_Store
